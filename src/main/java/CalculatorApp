@@ -1,0 +1,91 @@
+package com.example.test;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javax.script.ScriptEngineManager;
+
+public class CalculatorApp extends Application {
+
+    String current = "";
+    TextField display = new TextField();
+
+    @Override
+    public void start(Stage stage) {
+
+        GridPane grid = new GridPane();
+
+        display.setPrefWidth(200);
+        grid.add(display,0,0,4,1);
+
+        String[] buttons = {
+                "7","8","9","/",
+                "4","5","6","*",
+                "1","2","3","-",
+                "0","C","=","+"
+        };
+
+        int row = 1;
+        int col = 0;
+
+        for(String text : buttons){
+
+            Button btn = new Button(text);
+            btn.setPrefSize(50,50);
+
+            btn.setOnAction(e -> handleButton(text));
+
+            grid.add(btn,col,row);
+
+            col++;
+
+            if(col==4){
+                col=0;
+                row++;
+            }
+        }
+
+        Scene scene = new Scene(grid,220,260);
+
+        stage.setTitle("Calculator");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    void handleButton(String text){
+
+        if(text.equals("C")){
+            current="";
+            display.setText("");
+        }
+
+        else if(text.equals("=")){
+            try{
+
+                double result =
+                        new ScriptEngineManager()
+                                .getEngineByName("JavaScript")
+                                .eval(current) instanceof Number n
+                                ? n.doubleValue():0;
+
+                display.setText(String.valueOf(result));
+                current = String.valueOf(result);
+
+            }catch(Exception e){
+                display.setText("Error");
+            }
+        }
+
+        else{
+            current += text;
+            display.setText(current);
+        }
+    }
+
+    public static void main(String[] args){
+        launch();
+    }
+}
